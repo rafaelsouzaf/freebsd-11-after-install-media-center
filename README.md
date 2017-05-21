@@ -6,7 +6,7 @@ Script to install basic stuff to make easy the first setup of a media center (Pl
 Use:
 
 ```
-wget https://raw.githubusercontent.com/rafaelsouzaf/freebsd-11-after-install/master/install.sh
-chmod +x install.sh
-./install.sh
+wget https://raw.githubusercontent.com/rafaelsouzaf/freebsd-11-after-install/master/install-after.sh
+chmod +x install-after.sh
+./install-after.sh
 
