@@ -6,4 +6,5 @@ Use:
 ```
 wget https://raw.githubusercontent.com/rafaelsouzaf/freebsd-11-after-install/master/install.sh
 chmod +x install.sh
-./install.sh start```
+./install.sh start
+
