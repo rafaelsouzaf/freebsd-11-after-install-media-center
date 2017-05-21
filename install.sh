@@ -166,9 +166,28 @@ cd /Media
 wget https://downloads.plex.tv/plex-media-server/1.5.6.3790-4613ce077/PlexMediaServer-1.5.6.3790-4613ce077-freebsd-amd64.tar.bz2
 tar -vxjf PlexMediaServer-1.5.6.3790-4613ce077-freebsd-amd64.tar.bz2
 rm PlexMediaServer-1.5.6.3790-4613ce077-freebsd-amd64.tar.bz2
-sysrc plexmediaserver_enable="YES"
 
+##
+## A simple rc.d script to Plex starts automatically
+##
+#	#!/bin/sh
+#
+#	. /etc/rc.subr
+#
+#	name="plex"
+#	start_cmd="${name}_start"
+#	stop_cmd=":"
+#
+#	plex_start()
+#	{
+#        cd /Media/PlexMediaServer-1.5.6/ && ./start.sh
+#        echo "Plex started."
+#	}
+#
+#	load_rc_config $name
+#	run_rc_command "$1"
 
+sysrc plex_enable="YES"
 
 ##
 ## SET PERMISSION FOLDER
