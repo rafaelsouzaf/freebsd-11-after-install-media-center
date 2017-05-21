@@ -157,14 +157,14 @@ cat <<EOF > /etc/rc.d/plex
 #!/bin/sh
 . /etc/rc.subr
 name="plex"
-start_cmd="${name}_start"
+start_cmd="\${name}_start"
 stop_cmd=":"
 plex_start() {
 	cd /Media/PlexMediaServer-1.5.6/ && ./start.sh
 	echo "Plex started."
 }
-load_rc_config $name
-run_rc_command "$1"
+load_rc_config \$name
+run_rc_command "\$1"
 EOF
 
 chmod +x /etc/rc.d/plex
@@ -177,8 +177,8 @@ sysrc plex_enable="YES"
 #
 chmod -R 755 /Media
 chown -R "$SO_USERNAME:$SO_USERNAME" /Media
-ln -s /Media /home/$SO_USERNAME/Media
-chown -R "$SO_USERNAME:$SO_USERNAME" /home/$SO_USERNAME/Media
+ln -s /Media "/home/$SO_USERNAME/Media"
+chown -R "$SO_USERNAME:$SO_USERNAME" "/home/$SO_USERNAME/Media"
 
 
 
@@ -189,5 +189,4 @@ echo "########################################################"
 echo "################# PLEX: http://localhost:32400/web/"
 echo "################# TRANSMISSION: http://localhost:9091"
 echo "########################################################"
-
-fi
+exit 1
