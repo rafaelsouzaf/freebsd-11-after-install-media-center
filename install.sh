@@ -30,22 +30,13 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-#
-# EXECUTE THIS SCRIPT WITH ROOT
-#
-# SYSTEM REQUIREMENTS:
-#		root access
-#		pkg installed
-
-
-set USERNAME = 'MY_USERNAME'
+set SO_USERNAME = 'MY_USER'
+set TRANSMISSION_USERNAME = 'MY_USER'
 set TRANSMISSION_PASSWORD = 'MY_PASSWORD'
 
-if ($#argv == 0) then
-	echo "FreeBSD After Install"
-	echo "Use: ./install.sh start"
-	exit 1
+if ($SO_USERNAME == "MY_USER") then
+	echo "PLEASE READ THE SCRIPT AND SET THE VARIABLES"
+	exit
 endif
 
 
@@ -54,13 +45,14 @@ printf "\n\n\n\n"
 echo "########################################################"
 echo "################# UPDATING FREEBSD "
 echo "########################################################"
-freebsd-update fetch
+env PAGER=cat freebsd-update fetch
 freebsd-update install
+
 
 
 printf "\n\n\n\n"
 echo "########################################################"
-echo "################# INSTALLING BASIC PROGRAMS"
+echo "################# INSTALLING BASIC STUFF"
 echo "########################################################"
 pkg install -y vim nano git wget curl openjdk unzip gcc compat9x-amd64
 
@@ -79,20 +71,22 @@ printf "\n\n\n\n"
 echo "########################################################"
 echo "################# ADD USER TO SUDOERS"
 echo "########################################################"
-pw group mod wheel -m $USERNAME
+pw group mod wheel -m $SO_USERNAME
 pkg install -y sudo
-echo "$USERNAME ALL=(ALL) ALL" >> /usr/local/etc/sudoers
+echo "$SO_USERNAME ALL=(ALL) ALL" >> /usr/local/etc/sudoers
 
 
 
-printf "\n\n\n\n"
-echo "########################################################"
-echo "################# INSTALL VIRTUALBOX GUEST ADDICTIONS"
-echo "########################################################"
-#pkg install -y virtualbox-ose-additions
-#sysrc vboxguest_enable="YES"
-#sysrc vboxservice_enable="YES"
-
+set VM = 'dmesg|grep -oe VBOX|uniq'
+if ("$VM" == "VBOX") then
+	printf "\n\n\n\n"
+	echo "########################################################"
+	echo "################# INSTALL VIRTUALBOX GUEST ADDICTIONS"
+	echo "########################################################"
+	pkg install -y virtualbox-ose-additions
+	sysrc vboxguest_enable="YES"
+	sysrc vboxservice_enable="YES"
+endif
 
 
 printf "\n\n\n\n"
@@ -108,16 +102,17 @@ echo "########################################################"
 echo "################# INSTALL TRANSMISSION"
 echo "################# http://localhost:9091"
 echo "########################################################"
+mkdir -p /Media/Downloads
 pkg install -y transmission transmission-cli transmission-daemon
 sysrc transmission_enable="YES"
 sysrc transmission_watch_dir="/Media/Downloads"
 sysrc transmission_download_dir="/Media/Downloads"
-service transmission onestart
-service transmission onestop
+service transmission onestart #start one time to create the settings.json
+service transmission onestop #stop to edit settings.json
 pw groupmod transmission -m rafaelsouzaf
 pw groupmod rafaelsouzaf -m transmission
 sed -i -- 's/\/usr\/local\/etc\/transmission\/home\/Downloads/\/Media\/Downloads/g' /usr/local/etc/transmission/home/settings.json
-sed -i -- 's/"rpc-username": ""/"rpc-username": "$USERNAME"/g' /usr/local/etc/transmission/home/settings.json
+sed -i -- 's/"rpc-username": ""/"rpc-username": "$TRANSMISSION_USERNAME"/g' /usr/local/etc/transmission/home/settings.json
 sed -i -- 's/"rpc-whitelist": "127.0.0.1"/"rpc-whitelist": "0.0.0.0"/g' /usr/local/etc/transmission/home/settings.json
 sed -i -- 's/"rpc-whitelist-enabled": true/"rpc-whitelist-enabled": false/g' /usr/local/etc/transmission/home/settings.json
 sed -i -- 's/{e954129dc4a487547ff2f75dfa673b84ee4d1d0dnvSTwKjT/$TRANSMISSION_PASSWORD/g' /usr/local/etc/transmission/home/settings.json
@@ -130,6 +125,10 @@ echo "################# INSTALL AND CONFIGURE NOIP"
 echo "########################################################"
 pkg install -y noip
 sysrc noip_enable="YES"
+echo "########################################################"
+echo "################# ENTER YOUR noip.com USER AND PASS"
+echo "################# YOU CAN REPEAT THIS ACTION AFTER EXECUTING: /usr/local/bin/noip2 -C"
+echo "########################################################"
 /usr/local/bin/noip2 -C
 
 
@@ -139,7 +138,6 @@ echo "########################################################"
 echo "################# INSTALL PLEX MEDIA SERVER"
 echo "################# http://localhost:32400/web/"
 echo "########################################################"
-mkdir -p /Media/Downloads
 cd /Media
 wget https://downloads.plex.tv/plex-media-server/1.5.6.3790-4613ce077/PlexMediaServer-1.5.6.3790-4613ce077-freebsd-amd64.tar.bz2
 tar -vxjf PlexMediaServer-1.5.6.3790-4613ce077-freebsd-amd64.tar.bz2
@@ -149,7 +147,7 @@ rm PlexMediaServer-1.5.6.3790-4613ce077-freebsd-amd64.tar.bz2
 
 printf "\n\n\n\n"
 echo "########################################################"
-echo "################# CREATING A SIMPLE RC.D SCRIPT TO PLEX"
+echo "################# CREATING A SIMPLE rc.d SCRIPT TO PLEX"
 echo "################# STARTS AUTOMATICALLY"
 echo "########################################################"
 cat <<EOF > /etc/rc.d/plex
@@ -159,26 +157,25 @@ name="plex"
 start_cmd="${name}_start"
 stop_cmd=":"
 plex_start() {
-	cd /root/PlexMediaServer-1.5.6/ && ./start.sh
+	cd /Media/PlexMediaServer-1.5.6/ && ./start.sh
 	echo "Plex started."
 }
 load_rc_config $name
 run_rc_command "$1"
 EOF
 
-#
-# add plex service in rc.conf
-#
 chmod +x /etc/rc.d/plex
+
+# add plex service in rc.conf
 sysrc plex_enable="YES"
 
 #
 # SET PERMISSION FOLDER
 #
 chmod -R 755 /Media
-chown -R "$USERNAME:$USERNAME" /Media
-ln -s /Media /home/$USERNAME/Media
-chown -R "$USERNAME:$USERNAME" /home/$USERNAME/Media
+chown -R "$SO_USERNAME:$SO_USERNAME" /Media
+ln -s /Media /home/$SO_USERNAME/Media
+chown -R "$SO_USERNAME:$SO_USERNAME" /home/$SO_USERNAME/Media
 
 
 
@@ -189,3 +186,5 @@ echo "########################################################"
 echo "################# PLEX: http://localhost:32400/web/"
 echo "################# TRANSMISSION: http://localhost:9091"
 echo "########################################################"
+
+fi
