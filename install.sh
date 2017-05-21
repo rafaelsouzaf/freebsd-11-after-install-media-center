@@ -103,12 +103,15 @@ echo "################# INSTALL TRANSMISSION"
 echo "################# http://localhost:9091"
 echo "########################################################"
 mkdir -p /Media/Downloads
-pkg install -y transmission transmission-cli transmission-daemon
+pkg install -y  transmission-cli transmission-daemon
 sysrc transmission_enable="YES"
 sysrc transmission_watch_dir="/Media/Downloads"
 sysrc transmission_download_dir="/Media/Downloads"
-service transmission onestart #start one time to create the settings.json
-service transmission onestop #stop to edit settings.json
+service transmission onestart
+sleep 5
+service transmission onestop
+sleep 5
+pkill -f transmission
 pw groupmod transmission -m rafaelsouzaf
 pw groupmod rafaelsouzaf -m transmission
 sed -i -- 's/\/usr\/local\/etc\/transmission\/home\/Downloads/\/Media\/Downloads/g' /usr/local/etc/transmission/home/settings.json
