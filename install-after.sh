@@ -43,62 +43,6 @@ endif
 
 printf "\n\n\n\n"
 echo "########################################################"
-echo "################# UPDATING FREEBSD "
-echo "########################################################"
-env PAGER=cat freebsd-update fetch
-freebsd-update install
-
-
-
-printf "\n\n\n\n"
-echo "########################################################"
-echo "################# INSTALLING BASIC STUFF"
-echo "########################################################"
-pkg install -y vim nano git wget curl openjdk unzip gcc compat9x-amd64
-
-
-
-printf "\n\n\n\n"
-echo "########################################################"
-echo "################# ALLOW REMOTE LOGIN BY SSH WITH ROOT USER"
-echo "########################################################"
-sed -i -- 's/#PermitRootLogin no/PermitRootLogin yes/g' /etc/ssh/sshd_config
-service sshd restart
-
-
-
-printf "\n\n\n\n"
-echo "########################################################"
-echo "################# ADD USER TO SUDOERS"
-echo "########################################################"
-pw group mod wheel -m $SO_USERNAME
-pkg install -y sudo
-echo "$SO_USERNAME ALL=(ALL) ALL" >> /usr/local/etc/sudoers
-
-
-
-set VM = 'dmesg|grep -oe VBOX|uniq'
-if ("$VM" == "VBOX") then
-	printf "\n\n\n\n"
-	echo "########################################################"
-	echo "################# INSTALL VIRTUALBOX GUEST ADDICTIONS"
-	echo "########################################################"
-	pkg install -y virtualbox-ose-additions
-	sysrc vboxguest_enable="YES"
-	sysrc vboxservice_enable="YES"
-endif
-
-
-printf "\n\n\n\n"
-echo "########################################################"
-echo "################# INSTALL SPEED TEST"
-echo "########################################################"
-pkg install -y py27-speedtest-cli
-
-
-
-printf "\n\n\n\n"
-echo "########################################################"
 echo "################# INSTALL TRANSMISSION"
 echo "################# http://localhost:9091"
 echo "########################################################"
@@ -119,20 +63,6 @@ sed -i -- 's/"rpc-username": ""/"rpc-username": "$TRANSMISSION_USERNAME"/g' /usr
 sed -i -- 's/"rpc-whitelist": "127.0.0.1"/"rpc-whitelist": "0.0.0.0"/g' /usr/local/etc/transmission/home/settings.json
 sed -i -- 's/"rpc-whitelist-enabled": true/"rpc-whitelist-enabled": false/g' /usr/local/etc/transmission/home/settings.json
 sed -i -- 's/{e954129dc4a487547ff2f75dfa673b84ee4d1d0dnvSTwKjT/$TRANSMISSION_PASSWORD/g' /usr/local/etc/transmission/home/settings.json
-
-
-
-printf "\n\n\n\n"
-echo "########################################################"
-echo "################# INSTALL AND CONFIGURE NOIP"
-echo "########################################################"
-pkg install -y noip
-sysrc noip_enable="YES"
-echo "########################################################"
-echo "################# ENTER YOUR noip.com USER AND PASS"
-echo "################# YOU CAN REPEAT THIS ACTION AFTER EXECUTING: /usr/local/bin/noip2 -C"
-echo "########################################################"
-/usr/local/bin/noip2 -C
 
 
 
