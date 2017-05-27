@@ -1,7 +1,7 @@
 # freebsd-11-after-install-media-center
 Script to install a media center (Plex with Transmission) on FreeBSD 11.
 
-*** For some people thsis script can be a reference but it's not ready yet.
+*** For some people this script can be a reference but it's not ready yet.
 
 Use:
 
